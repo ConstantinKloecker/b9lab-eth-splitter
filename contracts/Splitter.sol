@@ -7,8 +7,8 @@ contract Splitter {
     address bob;
     address carol;
 
-    event LogEthSplitted(uint _amount);
-    event LogWithdrawal(address indexed _to);
+    event LogEthSplitted(address indexed _from, uint _amount);
+    event LogWithdrawal(address indexed _to, uint _amount);
 
     constructor(address _alice, address _bob, address _carol) public {
         alice = _alice;
@@ -31,7 +31,7 @@ contract Splitter {
             if (!msg.sender.send(amount)) {
                 revert("Error during withdrawal");
             }
-            emit LogWithdrawal(msg.sender);
+            emit LogWithdrawal(msg.sender, amount);
         } else {
             revert("No balance available");
         }
@@ -42,7 +42,7 @@ contract Splitter {
             uint amount = msg.value / 2;
             balances[bob] += amount;
             balances[carol] += amount;
-            emit LogEthSplitted(msg.value);
+            emit LogEthSplitted(msg.sender, msg.value);
         } else {
             revert("Only usable by Alice");
         }
