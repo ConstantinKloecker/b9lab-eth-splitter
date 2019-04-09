@@ -1,49 +1,57 @@
 pragma solidity ^0.5.0;
 
-contract Splitter {
+contract Ownable {
 
-    bool active;
     address owner;
+    bool active;
+
+    function deactivateContract() public {
+        require(msg.sender == owner, "Only executable by owner");
+        active = false;
+    }
+}
+
+contract Splitter is Ownable {
+
     mapping (address => uint) balances;
 
-    event LogEthSplitted(address indexed _from, uint _amount, address _toUser1, address _toUser2);
-    event LogRemainder(address indexed _user);
-    event LogWithdrawal(address indexed _to, uint _amount);
+    event LogEthSplitted(
+        address indexed from, 
+        address indexed toUser1, 
+        address indexed toUser2,
+        uint preSplitAmount
+    );
+
+    event LogWithdrawal(
+        address indexed to, 
+        uint amount
+    );
 
     constructor() public {
         owner = msg.sender;
         active = true;
     }
 
-    function deactivateSplitter() public {
-        require(msg.sender == owner, "Only executable by owner");
-        active = false;
-    }
-
-    function getBalance(address _user) public view returns (uint) {
-        return balances[_user];
+    function getBalance(address user) public view returns (uint) {
+        return balances[user];
     }
 
     function withdraw() public {
-        uint amount = getBalance(msg.sender);
+        uint amount = balances[msg.sender];
         require(amount > 0, "No balance available");
         balances[msg.sender] = 0;
-        require(msg.sender.send(amount) == true, "Error during withdrawal");
         emit LogWithdrawal(msg.sender, amount);
+        msg.sender.transfer(amount);
     }
 
-    function splitEth(address _toUser1, address _toUser2) external payable {
+    function splitEth(address toUser1, address toUser2) external payable {
         require(active == true, "Contract is no longer active");
-        require(_toUser1 != address(0) && _toUser2 != address(0), "Address cannot be empty");
+        require(toUser1 != address(0), "Address of 'toUser1' cannot be empty");
+        require(toUser2 != address(0), "Address of 'toUser2' cannot be empty");
         uint amount = msg.value / 2;
-        balances[_toUser1] += amount;
-        balances[_toUser2] += amount;
-        emit LogEthSplitted(msg.sender, msg.value, _toUser1, _toUser2);
-        uint remainder = msg.value - (2 * amount);
-        if (remainder != 0) {
-            balances[msg.sender] += remainder;
-            emit LogRemainder(msg.sender);
-        }
+        balances[toUser1] += amount;
+        balances[toUser2] += amount;
+        emit LogEthSplitted(msg.sender, toUser1, toUser2, msg.value);
     }
 
     function() external {
