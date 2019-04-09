@@ -34,6 +34,7 @@ contract Splitter {
 
     function splitEth(address _toUser1, address _toUser2) external payable {
         require(active == true, "Contract is no longer active");
+        require(_toUser1 != address(0) && _toUser2 != address(0), "Address cannot be empty");
         uint amount = msg.value / 2;
         balances[_toUser1] += amount;
         balances[_toUser2] += amount;
