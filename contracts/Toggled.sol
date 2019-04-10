@@ -1,17 +1,25 @@
 pragma solidity ^0.5.0;
 
-import "./Owned.sol";
+import {Owned} from "./Owned.sol";
 
 contract Toggled is Owned {
 
-    bool public active;
+    bool private active;
 
-    constructor() public {
+    constructor() internal {
         active = true;
     }
 
-    function deactivateContract() public {
-        require(msg.sender == owner, "Only executable by owner");
+    modifier isActive() {
+        require(active, "Contract is currently not active");
+        _;
+    }
+
+    function deactivateContract() public onlyOwner {
         active = false;
+    }
+
+    function activateContract() public onlyOwner {
+        active = true;
     }
 }

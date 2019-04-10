@@ -1,6 +1,6 @@
 pragma solidity ^0.5.0;
 
-import "./Toggled.sol";  // is Owned
+import {Toggled} from "./Toggled.sol";  // Toggled is Owned
 
 contract Splitter is Toggled {
 
@@ -18,7 +18,7 @@ contract Splitter is Toggled {
         uint amount
     );
 
-    constructor() public {
+    constructor() internal {
         // auto-calls Toggled constructor -> auto-calls Owned constructor
     }
 
@@ -30,8 +30,7 @@ contract Splitter is Toggled {
         msg.sender.transfer(amount);
     }
 
-    function splitEth(address toUser1, address toUser2) public payable {
-        require(active == true, "Contract is no longer active");
+    function splitEth(address toUser1, address toUser2) public payable isActive {
         require(toUser1 != address(0), "Address of 'toUser1' cannot be empty");
         require(toUser2 != address(0), "Address of 'toUser2' cannot be empty");
         require(msg.value != 0, "Message value cannot be 0");
