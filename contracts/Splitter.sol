@@ -1,19 +1,10 @@
 pragma solidity ^0.5.0;
 
-contract Ownable {
+import "./Toggled.sol";  // is Owned
 
-    address owner;
-    bool active;
+contract Splitter is Toggled {
 
-    function deactivateContract() public {
-        require(msg.sender == owner, "Only executable by owner");
-        active = false;
-    }
-}
-
-contract Splitter is Ownable {
-
-    mapping (address => uint) balances;
+    mapping (address => uint) public balances;
 
     event LogEthSplitted(
         address indexed from, 
@@ -28,12 +19,7 @@ contract Splitter is Ownable {
     );
 
     constructor() public {
-        owner = msg.sender;
-        active = true;
-    }
-
-    function getBalance(address user) public view returns (uint) {
-        return balances[user];
+        // auto-calls Toggled constructor -> auto-calls Owned constructor
     }
 
     function withdraw() public {
@@ -44,10 +30,12 @@ contract Splitter is Ownable {
         msg.sender.transfer(amount);
     }
 
-    function splitEth(address toUser1, address toUser2) external payable {
+    function splitEth(address toUser1, address toUser2) public payable {
         require(active == true, "Contract is no longer active");
         require(toUser1 != address(0), "Address of 'toUser1' cannot be empty");
         require(toUser2 != address(0), "Address of 'toUser2' cannot be empty");
+        require(msg.value != 0, "Message value cannot be 0");
+        require((msg.value % 2) == 0, "Mesage value must be even");
         uint amount = msg.value / 2;
         balances[toUser1] += amount;
         balances[toUser2] += amount;
