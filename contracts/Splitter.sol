@@ -18,7 +18,7 @@ contract Splitter is Toggled {
         uint amount
     );
 
-    constructor() internal {
+    constructor() public {
         // auto-calls Toggled constructor -> auto-calls Owned constructor
     }
 

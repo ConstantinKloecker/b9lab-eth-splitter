@@ -4,10 +4,10 @@ import {Owned} from "./Owned.sol";
 
 contract Toggled is Owned {
 
-    bool public active;
+    bool private active;
 
-    event LogContractPaused(address thisContract);
-    event LogContractResumed(address thisContract);
+    event LogContractPaused(address indexed performedBy);
+    event LogContractResumed(address indexed performedBy);
 
     constructor() internal {
         active = true;
@@ -19,12 +19,18 @@ contract Toggled is Owned {
     }
 
     function pauseContract() public onlyOwner {
+        require(active, "Contract is already paused");
         active = false;
-        emit LogContractPaused(address(this));
+        emit LogContractPaused(msg.sender);
     }
 
     function resumeContract() public onlyOwner {
+        require(!active, "Contract is already active");
         active = true;
-        emit LogContractResumed(address(this));
+        emit LogContractResumed(msg.sender);
+    }
+
+    function getStatus() public view returns(bool) {
+        return active;
     }
 }
