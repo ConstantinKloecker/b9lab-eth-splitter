@@ -4,6 +4,8 @@ contract Owned {
 
     address private owner;
 
+    event LogOwnerChanged(address newOwner);
+
     constructor() internal {
         owner = msg.sender;
     }
@@ -11,5 +13,10 @@ contract Owned {
     modifier onlyOwner() {
         require(msg.sender == owner, "Only executable by owner");
         _;
+    }
+
+    function changeOwner(address newOwner) public onlyOwner {
+        owner = newOwner;
+        emit LogOwnerChanged(newOwner);
     }
 }
