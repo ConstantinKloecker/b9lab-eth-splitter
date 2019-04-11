@@ -4,22 +4,27 @@ import {Owned} from "./Owned.sol";
 
 contract Toggled is Owned {
 
-    bool private active;
+    bool public active;
+
+    event LogContractPaused(address thisContract);
+    event LogContractResumed(address thisContract);
 
     constructor() internal {
         active = true;
     }
 
     modifier isActive() {
-        require(active, "Contract is currently not active");
+        require(active, "Contract is currently paused");
         _;
     }
 
-    function deactivateContract() public onlyOwner {
+    function pauseContract() public onlyOwner {
         active = false;
+        emit LogContractPaused(address(this));
     }
 
-    function activateContract() public onlyOwner {
+    function resumeContract() public onlyOwner {
         active = true;
+        emit LogContractResumed(address(this));
     }
 }
