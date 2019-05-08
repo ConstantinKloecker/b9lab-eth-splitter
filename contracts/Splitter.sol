@@ -7,14 +7,14 @@ contract Splitter is Toggled {
     mapping (address => uint) public balances;
 
     event LogEthSplitted(
-        address indexed from, 
-        address indexed toUser1, 
+        address indexed from,
+        address indexed toUser1,
         address indexed toUser2,
         uint preSplitAmount
     );
 
     event LogWithdrawal(
-        address indexed to, 
+        address indexed to,
         uint amount
     );
 
