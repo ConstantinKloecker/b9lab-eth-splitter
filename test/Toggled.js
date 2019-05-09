@@ -2,14 +2,10 @@ const Splitter = artifacts.require("Splitter");
 const truffleAssert = require("truffle-assertions");
 
 contract("Testing Toggled features of Splitter contract", accounts => {
-    let owner;
-    let alice;
-    let bob;
-    let carol;
     let instance;
+    const [owner, alice, bob, carol] = accounts;
 
     beforeEach("Deploying clean Splitter contract", async () => {
-        [owner, alice, bob, carol] = accounts;
         instance = await Splitter.new({ from: owner });
     });
 
