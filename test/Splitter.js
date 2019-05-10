@@ -1,5 +1,6 @@
 const Splitter = artifacts.require("Splitter");
 const truffleAssert = require("truffle-assertions");
+const { toBN } = web3.utils;
 
 contract("Testing Main features of Splitter contract", accounts => {
     let instance;
@@ -54,17 +55,25 @@ contract("Testing Main features of Splitter contract", accounts => {
     it("Withdrawing balances correctly", async () => {
         await instance.splitEth(bob, carol, { from: alice, value: 2 });
 
+        let preBalance1 = await web3.eth.getBalance(bob);
         let withdrawal1 = await instance.withdraw({ from: bob });
+        let tx1 = await web3.eth.getTransaction(withdrawal1.tx);
+        let gasCost1 = tx1.gasPrice * withdrawal1.receipt.gasUsed;
         truffleAssert.eventEmitted(withdrawal1, "LogWithdrawal", (ev) => {
             return ev.to === bob && ev.amount == 1;
         });
         assert.equal(await instance.balances(bob, { from: bob }), 0, "Bob's post withdrawal balance should be 0");
+        assert.equal(await web3.eth.getBalance(bob), (preBalance1 - gasCost1 + 1), "");
 
+        let preBalance2 = await web3.eth.getBalance(carol);
         let withdrawal2 = await instance.withdraw({ from: carol });
+        let tx2 = await web3.eth.getTransaction(withdrawal2.tx);
+        let gasCost2 = tx2.gasPrice * withdrawal2.receipt.gasUsed;
         truffleAssert.eventEmitted(withdrawal2, "LogWithdrawal", (ev) => {
             return ev.to === carol && ev.amount == 1;
         });
         assert.equal(await instance.balances(carol, { from: carol }), 0, "Carol's post withdrawal balance should be 0");
+        assert.equal(await web3.eth.getBalance(carol), (preBalance2 - gasCost2 + 1), "");
     });
 
     it("Reverting invalid withdrawals", async () => {
