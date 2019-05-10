@@ -1,6 +1,5 @@
 const Splitter = artifacts.require("Splitter");
 const truffleAssert = require("truffle-assertions");
-const { toBN } = web3.utils;
 
 contract("Testing Main features of Splitter contract", accounts => {
     let instance;
@@ -63,7 +62,7 @@ contract("Testing Main features of Splitter contract", accounts => {
             return ev.to === bob && ev.amount == 1;
         });
         assert.equal(await instance.balances(bob, { from: bob }), 0, "Bob's post withdrawal balance should be 0");
-        assert.equal(await web3.eth.getBalance(bob), (preBalance1 - gasCost1 + 1), "");
+        assert.equal(await web3.eth.getBalance(bob), (preBalance1 - gasCost1 + 1), "Bob should have received Ether");
 
         let preBalance2 = await web3.eth.getBalance(carol);
         let withdrawal2 = await instance.withdraw({ from: carol });
@@ -73,7 +72,7 @@ contract("Testing Main features of Splitter contract", accounts => {
             return ev.to === carol && ev.amount == 1;
         });
         assert.equal(await instance.balances(carol, { from: carol }), 0, "Carol's post withdrawal balance should be 0");
-        assert.equal(await web3.eth.getBalance(carol), (preBalance2 - gasCost2 + 1), "");
+        assert.equal(await web3.eth.getBalance(carol), (preBalance2 - gasCost2 + 1), "Carol should have received Ether");
     });
 
     it("Reverting invalid withdrawals", async () => {
