@@ -1,8 +1,11 @@
 pragma solidity ^0.5.0;
 
 import {Toggled} from "./Toggled.sol";  // Toggled is Owned
+import {SafeMath} from "./SafeMath.sol";
 
 contract Splitter is Toggled {
+
+    using SafeMath for uint256;
 
     mapping (address => uint) public balances;
 
@@ -36,8 +39,8 @@ contract Splitter is Toggled {
         require(msg.value != 0, "Message value cannot be 0");
         require((msg.value % 2) == 0, "Mesage value must be even");
         uint amount = msg.value / 2;
-        balances[toUser1] += amount;
-        balances[toUser2] += amount;
+        balances[toUser1] = balances[toUser1].add(amount);
+        balances[toUser2] = balances[toUser2].add(amount);
         emit LogEthSplitted(msg.sender, toUser1, toUser2, msg.value);
     }
 
