@@ -21,10 +21,6 @@ contract Splitter is Toggled {
         uint amount
     );
 
-    constructor() public {
-        // auto-calls Toggled constructor -> auto-calls Owned constructor
-    }
-
     function withdraw() public {
         uint amount = balances[msg.sender];
         require(amount > 0, "No balance available");
