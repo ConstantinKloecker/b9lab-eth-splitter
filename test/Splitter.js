@@ -1,6 +1,8 @@
 const Splitter = artifacts.require("Splitter");
 const truffleAssert = require("truffle-assertions");
 
+const { toBN, toWei } = web3.utils;
+
 contract("Testing Main features of Splitter contract", accounts => {
     let instance;
     const [owner, alice, bob, carol] = accounts;
@@ -52,33 +54,39 @@ contract("Testing Main features of Splitter contract", accounts => {
     });
 
     it("Withdrawing balances correctly", async () => {
-        await instance.splitEth(bob, carol, { from: alice, value: 2 });
+        await instance.splitEth(bob, carol, { from: alice, value: 20 });
 
-        let preBalance1 = await web3.eth.getBalance(bob);
+        let preEthBalance1 = new toBN(await web3.eth.getBalance(bob));
+        let preContractBalance1 = new toBN(await instance.balances(bob, { from: bob }));
         let withdrawal1 = await instance.withdraw({ from: bob });
         let tx1 = await web3.eth.getTransaction(withdrawal1.tx);
-        let gasCost1 = tx1.gasPrice * withdrawal1.receipt.gasUsed;
+        let gasCost1 = new toBN(tx1.gasPrice * withdrawal1.receipt.gasUsed);
+        let postEthBalance1 = new toBN(await web3.eth.getBalance(bob));
+        let postContractBalance1 = new toBN(await instance.balances(bob, { from: bob }));
         truffleAssert.eventEmitted(withdrawal1, "LogWithdrawal", (ev) => {
-            return ev.to === bob && ev.amount == 1;
+            return ev.to === bob && ev.amount == 10;
         });
-        assert.equal(await instance.balances(bob, { from: bob }), 0, "Bob's post withdrawal balance should be 0");
-        assert.equal(await web3.eth.getBalance(bob), (preBalance1 - gasCost1 + 1), "Bob should have received Ether");
+        assert.equal(postContractBalance1.toString(), toWei("0").toString(), "Bob's post withdrawal balance should be 0");
+        assert.equal(postEthBalance1.toString(), (preEthBalance1.add(preContractBalance1).sub(gasCost1)).toString(), "Bob should have received Ether");
 
-        let preBalance2 = await web3.eth.getBalance(carol);
+        let preEthBalance2 = new toBN(await web3.eth.getBalance(carol));
+        let preContractBalance2 = new toBN(await instance.balances(carol, { from: carol }));
         let withdrawal2 = await instance.withdraw({ from: carol });
         let tx2 = await web3.eth.getTransaction(withdrawal2.tx);
-        let gasCost2 = tx2.gasPrice * withdrawal2.receipt.gasUsed;
+        let gasCost2 = new toBN(tx2.gasPrice * withdrawal2.receipt.gasUsed);
+        let postEthBalance2 = new toBN(await web3.eth.getBalance(carol));
+        let postContractBalance2 = new toBN(await instance.balances(carol, { from: carol }));
         truffleAssert.eventEmitted(withdrawal2, "LogWithdrawal", (ev) => {
-            return ev.to === carol && ev.amount == 1;
+            return ev.to === carol && ev.amount == 10;
         });
-        assert.equal(await instance.balances(carol, { from: carol }), 0, "Carol's post withdrawal balance should be 0");
-        assert.equal(await web3.eth.getBalance(carol), (preBalance2 - gasCost2 + 1), "Carol should have received Ether");
+        assert.equal(postContractBalance2.toString(), toWei("0").toString(), "Carol's post withdrawal balance should be 0");
+        assert.equal(postEthBalance2.toString(), (preEthBalance2.add(preContractBalance2).sub(gasCost2)).toString(), "Carol should have received Ether");
     });
 
     it("Reverting invalid withdrawals", async () => {
         await truffleAssert.fails(
             instance.withdraw({ from: owner })
-        )
+        );
     });
 
     it("Reverting ether send to fallback function", async () => {
