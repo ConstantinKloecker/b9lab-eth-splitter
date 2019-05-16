@@ -1,0 +1,30 @@
+<html>
+
+<head>
+    <title>ETH Splitter</title>
+    <script src="./web3.js"></script>
+    <script src="./splitterCompiled.js"></script>
+    <script src="./splitter.js"></script>
+</head>
+<style>
+    input {
+        width: 350px;
+    }
+</style>
+
+<body>
+    Account1: <input type="text" id="account1"><br>
+    Account2: <input type="text" id="account2"><br>
+    Amount: <input type="number" id="amount"><br>
+    <button
+        onclick="splitEth(document.getElementById('account1').value, document.getElementById('account2').value, document.getElementById('amount').value)">Split
+        Ether</button>
+    <br><br>
+    Account: <input type="text" id="balOfAccount"><br>
+    <button onclick="checkBalance(document.getElementById('balOfAccount').value, true)">Check Balance</button>
+    <br><br>
+    Account <span id="addressBal">0x0</span> balance is <span id='weiBal'>0</span> wei.<br>
+    <button onclick="withdrawBalance(document.getElementById('balOfAccount').value)">Withdraw Balance</button>
+</body>
+
+</html>
