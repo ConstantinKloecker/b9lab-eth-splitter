@@ -33,8 +33,7 @@ contract Toggled is Owned {
         active = true;
     }
 
-    function pausePermanently() public onlyOwner {
-        pauseContract();
+    function pausePermanently() public onlyOwner isPaused {
         deleteOwner();
     }
 
