@@ -39,10 +39,13 @@ contract Splitter is Toggled {
         require(toUser1 != address(0), "Address of 'toUser1' cannot be empty");
         require(toUser2 != address(0), "Address of 'toUser2' cannot be empty");
         require(msg.value != 0, "Message value cannot be 0");
-        require((msg.value % 2) == 0, "Mesage value must be even");
         uint amount = msg.value / 2;
+        uint remainder = msg.value % 2;
         balances[toUser1] = balances[toUser1].add(amount);
         balances[toUser2] = balances[toUser2].add(amount);
+        if (remainder != 0) {
+            balances[msg.sender] = balances[msg.sender].add(remainder);
+        }
         emit LogEthSplitted(msg.sender, toUser1, toUser2, msg.value);
     }
 
