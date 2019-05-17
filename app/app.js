@@ -51,12 +51,13 @@ function splitEth(account1, account2, amount) {
                             } else {
                                 console.log("splitEth txn: " + txn);
                             }
-                        });
+                        }
+                    );
                 }
             });
         }
     });
-}
+};
 
 function checkBalance(account1) {
     console.log("Account: " + account1);
@@ -83,7 +84,7 @@ function checkBalance(account1) {
             });
         }
     });
-}
+};
 
 function withdrawBalance() {
     console.log("Account: " + account);
@@ -95,24 +96,15 @@ function withdrawBalance() {
                 if (err) {
                     console.error(err);
                 } else {
-                    splitterInstance.withdraw(
-                        { from: coinbase },
-                        function (err, txn) {
-                            if (err) {
-                                console.error(err);
-                            } else {
-                                console.log("withdraw txn: " + txn);
-                            }
-                        });
+                    await splitterInstance.withdraw.call({ from: coinbase });
+                    let receipt = await splitterInstance.withdraw({ from: coinbase });
                 }
             });
         }
     });
-}
+};
 
 window.onload = async function () {
-
     document.getElementById('addressBal').textContent = web3.eth.coinbase;
     document.getElementById('weiBal').textContent = await splitterInstance.balances(web3.eth.coinbase);
-
 };
