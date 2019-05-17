@@ -16,9 +16,13 @@ contract Owned {
     }
 
     function changeOwner(address newOwner) public onlyOwner {
-        require(newOwner != address(0));
+        require(newOwner != address(0), "New owner cannot be zero address");
+        emit LogOwnerChanged(msg.sender, newOwner);
         owner = newOwner;
-        emit LogOwnerChanged(msg.sender ,newOwner);
+    }
+
+    function deleteOwner() public onlyOwner {
+        delete owner;
     }
 
     function getOwner() public view returns(address) {

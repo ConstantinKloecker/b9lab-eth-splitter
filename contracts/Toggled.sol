@@ -18,16 +18,24 @@ contract Toggled is Owned {
         _;
     }
 
-    function pauseContract() public onlyOwner {
-        require(active, "Contract is already paused");
-        active = false;
-        emit LogContractPaused(msg.sender);
+    modifier isPaused() {
+        require(!active, "Contract is currently active");
+        _;
     }
 
-    function resumeContract() public onlyOwner {
-        require(!active, "Contract is already active");
-        active = true;
+    function pauseContract() public onlyOwner isActive {
+        emit LogContractPaused(msg.sender);
+        active = false;
+    }
+
+    function resumeContract() public onlyOwner isPaused {
         emit LogContractResumed(msg.sender);
+        active = true;
+    }
+
+    function pausePermanently() public onlyOwner {
+        pauseContract();
+        deleteOwner();
     }
 
     function getStatus() public view returns(bool) {

@@ -21,6 +21,12 @@ contract Splitter is Toggled {
         uint amount
     );
 
+    constructor(bool status) public {
+        if (!status) {
+            pauseContract();
+        }
+    }
+
     function withdraw() public {
         uint amount = balances[msg.sender];
         require(amount > 0, "No balance available");
